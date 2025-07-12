@@ -28,6 +28,12 @@ app.use("/api/donate", donationRoutes);       // Donations
 app.use("/api/contact", contactRoutes);       // Contact Us
 app.use("/api/auth", authRoutes);             // ✅ User Auth (Login/Register)
 
+// Root route for Render to show basic info
+app.get("/", (req, res) => {
+  res.send("🚀 Gaushala Backend is live and working!");
+});
+
+
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
