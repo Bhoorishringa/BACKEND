@@ -67,8 +67,15 @@ const verifyMobileOTP = (req, res) => {
 const sendEmailOTP = async (req, res) => {
   const { email } = req.body;
 
+  console.log("📧 Email OTP request received for:", email);
+
   if (!email) {
     return res.status(400).json({ success: false, message: "Email is required" });
+  }
+
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error("❌ Missing EMAIL_USER or EMAIL_PASS in .env");
+    return res.status(500).json({ success: false, message: "Server email config missing" });
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -81,6 +88,17 @@ const sendEmailOTP = async (req, res) => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
+    tls: {
+      rejectUnauthorized: false, // allow self-signed certs
+    },
+  });
+
+  transporter.verify((err, success) => {
+    if (err) {
+      console.error("❌ Email transporter verification failed:", err);
+    } else {
+      console.log("✅ Email transporter is ready");
+    }
   });
 
   const mailOptions = {
@@ -91,12 +109,13 @@ const sendEmailOTP = async (req, res) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully to", email);
+    const result = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent to:", email);
+    console.log("📬 Response from Gmail:", result.response);
     res.json({ success: true, message: "Email OTP sent" });
   } catch (error) {
-    console.error("❌ Email error:", error);
-    res.status(500).json({ success: false, message: "Failed to send email OTP" });
+    console.error("❌ Failed to send email OTP:", error);
+    res.status(500).json({ success: false, message: "Failed to send email OTP", error });
   }
 };
 
@@ -133,6 +152,8 @@ const submitMembershipForm = async (req, res) => {
       permAddress,
     } = req.body;
 
+    console.log("📥 Membership form received for:", firstName, lastName);
+
     const newMember = new Member({
       firstName,
       lastName,
@@ -155,9 +176,10 @@ const submitMembershipForm = async (req, res) => {
     });
 
     await newMember.save();
+    console.log("✅ New member saved:", email);
     res.status(201).json({ success: true, message: "Form submitted successfully" });
   } catch (error) {
-    console.error("❌ Save error:", error);
+    console.error("❌ Save error in submitMembershipForm:", error);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };

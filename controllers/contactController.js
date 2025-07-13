@@ -31,12 +31,15 @@ const submitContactForm = async (req, res) => {
       return res.status(500).json({ message: "Email configuration is missing." });
     }
 
-    // Configure email
+    // Configure email with self-signed cert fix
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false, // ✅ Fix for self-signed cert issue
       },
     });
 
