@@ -17,10 +17,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://frontend-five-jade-64.vercel.app"
+];
+
 app.use(cors({
-  origin: "http://localhost:3000",  // 👈 your frontend dev server
-  credentials: true                 // 👈 allow cookies/credentials
+  origin: allowedOrigins,
+  credentials: true
 }));
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use("/uploads", express.static("uploads")); // serve uploaded photos
