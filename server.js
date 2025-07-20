@@ -11,45 +11,49 @@ const bodyParser = require("body-parser");
 const membershipRoutes = require("./routes/membershipRoutes");
 const donationRoutes = require("./routes/donationRoutes");
 const contactRoutes = require("./routes/contactRoutes");
-const authRoutes = require("./routes/authRoutes"); // ✅ ADDED
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ✅ CORRECT CORS SETUP
 const allowedOrigins = [
   "http://localhost:3000",
   "https://frontend-five-jade-64.vercel.app"
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
 
-app.options("*", cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.use(cors(corsOptions));
 
-
+// Middleware
 app.use(express.json());
 app.use(bodyParser.json());
 app.use("/uploads", express.static("uploads")); // serve uploaded photos
 
 // Routes
-app.use("/api/members", membershipRoutes);   // Membership Form
-app.use("/api/donate", donationRoutes);       // Donations
-app.use("/api/contact", contactRoutes);       // Contact Us
-app.use("/api/auth", authRoutes);             // ✅ User Auth (Login/Register)
+app.use("/api/members", membershipRoutes);
+app.use("/api/donate", donationRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/auth", authRoutes);
 
-// Root route for Render to show basic info
+// Root route for Render health check
 app.get("/", (req, res) => {
   res.send("🚀 Gaushala Backend is live and working!");
 });
 
-
-// MongoDB connection
+// DB Connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -62,5 +66,5 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .catch((err) => {
   console.error("❌ DB Connection error:", err.message);
-  process.exit(1); // Stop if DB is not connected
+  process.exit(1);
 });
