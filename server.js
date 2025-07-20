@@ -24,14 +24,16 @@
 
   const corsOptions = {
   origin: function (origin, callback) {
-    console.log("🌐 Incoming request from origin:", origin); // 👈 Bonus logging
+  console.log("🌐 Incoming request from origin:", origin || '⛔ No Origin Header');
 
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  if (!origin || allowedOrigins.includes(origin)) {
+    callback(null, true); // Allow undefined origins
+  } else {
+    console.log("❌ Blocked by CORS:", origin);
+    callback(new Error("Not allowed by CORS"));
+  }
+},
+
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
