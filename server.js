@@ -55,6 +55,14 @@
   app.use("/api/contact", contactRoutes);
   app.use("/api/auth", authRoutes);
 
+  app._router.stack.forEach((r) => {
+  if (r.route && r.route.path) {
+    console.log("📦 Mounted route:", r.route.path);
+  } else if (r.name === 'router') {
+    console.log("🔗 Router mounted at:", r.regexp?.toString());
+  }
+});
+
   // Root route for Render health check
   app.get("/", (req, res) => {
     res.send("🚀 Gaushala Backend is live and working!");
