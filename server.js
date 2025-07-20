@@ -18,10 +18,12 @@
 
   // ✅ CORRECT CORS SETUP
   const allowedOrigins = [
-    "http://localhost:3000",
-    "https://frontend-five-jade-64.vercel.app",
-    "https://bhoorishringa.org"
-  ];
+  "http://localhost:3000",
+  "https://frontend-five-jade-64.vercel.app",
+  "https://bhoorishringa.org",
+  "https://www.bhoorishringa.org"
+];
+
 
   const corsOptions = {
   origin: function (origin, callback) {
